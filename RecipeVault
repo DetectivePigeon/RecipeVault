@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>InstaBite - Instagram Recipe Organizer</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        },
+                        insta: {
+                            purple: '#833ab4',
+                            red: '#fd1d1d',
+                            orange: '#fcb045'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar for clean aesthetics */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(107, 114, 128, 0.8);
+        }
+        
+        .insta-gradient-bg {
+            background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+        }
+        .insta-gradient-text {
+            background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
+
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- Logo & App Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl insta-gradient-bg p-0.5 flex items-center justify-center shadow-lg shadow-rose-500/20">
+                        <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
+                            <i data-lucide="instagram" class="w-5 h-5 text-rose-500"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Insta<span class="insta-gradient-text">Bite</span></h1>
+                            <span class="text-[10px] font-bold px-2 py-0.5 bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 rounded-full border border-rose-200 dark:border-rose-800">VAULT</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Searchable Instagram Recipe Keeper</p>
+                    </div>
+                </div>
+
+                <!-- Header Actions -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <!-- Quick Add Button -->
+                    <button id="open-add-modal-btn" onclick="openAddModal()" class="flex items-center space-x-2 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white px-3.5 py-2 rounded-xl text-sm font-semibold shadow-md shadow-rose-500/20 active:scale-95 transition-all">
+                        <i data-lucide="plus" class="w-4 h-4 stroke-[2.5]"></i>
+                        <span class="hidden sm:inline">Save Recipe</span>
+                    </button>
+
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" onclick="toggleTheme()" class="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Dark/Light Mode">
+                        <i data-lucide="moon" id="theme-icon-dark" class="w-5 h-5"></i>
+                        <i data-lucide="sun" id="theme-icon-light" class="w-5 h-5 hidden"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
+
+        <!-- Sidebar / Folders Navigation -->
+        <aside class="w-full md:w-64 flex-shrink-0 space-y-6">
+            
+            <!-- Quick Link Save Card (Mobile / Desktop Widget) -->
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-xl border border-slate-700/50 relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-rose-500/10 rounded-full blur-xl pointer-events-none"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Quick Drop</span>
+                    <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+                </div>
+                <p class="text-xs text-slate-300 mb-3">Found a delicious recipe on IG? Save it in seconds!</p>
+                <button onclick="openAddModal()" class="w-full py-2 px-3 bg-white/10 hover:bg-white/20 border border-white/15 rounded-xl text-xs font-medium flex items-center justify-center space-x-2 transition-all">
+                    <i data-lucide="link" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span>Paste Link Here</span>
+                </button>
+            </div>
+
+            <!-- Folders / Categories Section -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <h2 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Folders & Collections</h2>
+                    <button onclick="openFolderModal()" class="p-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="Create New Folder">
+                        <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <nav id="folder-list" class="space-y-1">
+                    <!-- Folders rendered via JS -->
+                </nav>
+            </div>
+
+            <!-- Recipe Stats Card -->
+            <div class="bg-slate-100 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-200/60 dark:border-slate-800/80 hidden md:block">
+                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <span>Total Saved</span>
+                    <span id="stat-total-recipes" class="font-bold text-slate-800 dark:text-slate-200">0</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div id="stat-progress-bar" class="insta-gradient-bg h-full w-0 transition-all duration-500"></div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="flex-1 space-y-6 min-w-0">
+
+            <!-- Search, Filter & View Bar -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+                
+                <!-- Live Search Box -->
+                <div class="relative w-full sm:flex-1">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="Search recipes by name, tag, or ingredient..." class="w-full pl-10 pr-9 py-2.5 bg-slate-50 dark:bg-slate-800/80 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-xl border border-slate-200 dark:border-slate-700/60 focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition-all">
+                    <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <!-- Sort Dropdown -->
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-between sm:justify-end">
+                    <div class="flex items-center space-x-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        <i data-lucide="arrow-down-up" class="w-3.5 h-3.5"></i>
+                        <span class="hidden sm:inline">Sort:</span>
+                    </div>
+                    <select id="sort-select" onchange="handleSortChange()" class="bg-slate-50 dark:bg-slate-800/80 text-xs font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/60 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-500/50 cursor-pointer">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="alphabetical">Title (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Active Filter Banner (Dynamic) -->
+            <div id="filter-banner" class="hidden items-center justify-between bg-rose-50 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/60 rounded-xl px-4 py-2.5">
+                <div class="flex items-center space-x-2 text-xs text-rose-700 dark:text-rose-300 font-medium">
+                    <i data-lucide="filter" class="w-4 h-4"></i>
+                    <span>Filtering by folder: <strong id="filter-folder-name" class="font-bold">Folder Name</strong></span>
+                </div>
+                <button onclick="resetFolderFilter()" class="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline">
+                    Show All
+                </button>
+            </div>
+
+            <!-- Recipe Cards Grid Container -->
+            <div id="recipe-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Recipe Cards rendered dynamically via JS -->
+            </div>
+
+            <!-- Empty State Display -->
+            <div id="empty-state" class="hidden flex-col items-center justify-center py-16 px-4 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-300 dark:border-slate-800">
+                <div class="w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-950/50 flex items-center justify-center text-rose-500 mb-4 shadow-inner">
+                    <i data-lucide="utensils-crossed" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">No Recipes Found</h3>
+                <p id="empty-state-msg" class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-6">You haven't saved any recipes matching your current filter yet.</p>
+                <button onclick="openAddModal()" class="flex items-center space-x-2 bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add First Recipe</span>
+                </button>
+            </div>
+
+        </section>
+    </main>
+
+
+    <!-- Add / Edit Recipe Modal -->
+    <div id="recipe-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-950/60 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                        <i data-lucide="bookmark" class="w-4 h-4"></i>
+                    </div>
+                    <h3 id="modal-title" class="text-base font-bold text-slate-900 dark:text-white">Save Recipe Link</h3>
+                </div>
+                <button onclick="closeRecipeModal()" class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="recipe-form" onsubmit="saveRecipe(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
+                <input type="hidden" id="recipe-id">
+
+                <!-- Instagram URL Input -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Instagram Link *</label>
+                    <div class="relative">
+                        <i data-lucide="instagram" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-rose-500"></i>
+                        <input type="url" id="recipe-url" required placeholder="https://www.instagram.com/reel/C3xyz..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/80 text-sm rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition-all">
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">Paste link from Instagram post, reel, or video.</p>
+                </div>
+
+                <!-- Recipe Name Input -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Recipe Title *</label>
+                    <input type="text" id="recipe-title" required placeholder="e.g., Creamy Garlic Tuscan Pasta" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 text-sm rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition-all">
+                </div>
+
+                <!-- Folder Selector & Category Tag -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Save to Folder</label>
+                        <select id="recipe-folder" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800/80 text-sm rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/50 cursor-pointer">
+                            <!-- Folders populated via JS -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Cooking Time (min)</label>
+                        <input type="number" id="recipe-time" min="1" placeholder="e.g. 20" class="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800/80 text-sm rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/50">
+                    </div>
+                </div>
+
+                <!-- Optional Thumbnail Image URL or Gradient Choice -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Custom Thumbnail Image URL <span class="text-slate-400 font-normal">(Optional)</span></label>
+                    <input type="url" id="recipe-image" placeholder="https://images.unsplash.com/photo-..." class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 text-sm rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/50">
+                    <p class="text-[11px] text-slate-400 mt-1">Leave empty to auto-generate a vibrant visual icon thumbnail!</p>
+                </div>
+
+                <!-- Recipe Notes / Ingredients Summary -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Key Ingredients / Quick Notes</label>
+                    <textarea id="recipe-notes" rows="3" placeholder="e.g. Heavy cream, garlic, sun-dried tomatoes, parmesan, spinach..." class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 text-sm rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/50 resize-none"></textarea>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="pt-2 flex items-center justify-end space-x-3">
+                    <button type="button" onclick="closeRecipeModal()" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 shadow-md shadow-rose-500/20 active:scale-95 transition-all">
+                        Save to Vault
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Folder Modal -->
+    <div id="folder-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-sm p-6 shadow-2xl">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-3">Create New Folder</h3>
+            <input type="text" id="new-folder-name" placeholder="Folder Name (e.g., Quick Snacks)" class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 text-sm rounded-xl border border-slate-200 dark:border-slate-700 mb-4 focus:outline-none focus:ring-2 focus:ring-rose-500">
+            <div class="flex justify-end space-x-2">
+                <button onclick="closeFolderModal()" class="px-4 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl">Cancel</button>
+                <button onclick="saveNewFolder()" class="px-4 py-2 text-xs font-bold text-white bg-rose-500 hover:bg-rose-600 rounded-xl shadow-md shadow-rose-500/20">Create Folder</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recipe Detail Drawer Modal -->
+    <div id="view-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
+            <!-- Header Image / Dynamic Header -->
+            <div id="view-header-bg" class="h-48 w-full relative bg-cover bg-center flex items-end p-4">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+                <button onclick="closeViewModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-md transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+                <div class="relative z-10 w-full">
+                    <span id="view-folder-badge" class="inline-block px-2.5 py-1 bg-white/20 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg mb-1">
+                        Folder
+                    </span>
+                    <h2 id="view-recipe-title" class="text-xl font-extrabold text-white leading-tight">Recipe Title</h2>
+                </div>
+            </div>
+
+            <!-- Body Details -->
+            <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <span id="view-date" class="flex items-center space-x-1">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                        <span>Added Today</span>
+                    </span>
+                    <span id="view-time" class="flex items-center space-x-1 text-amber-500 font-semibold">
+                        <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                        <span>25 mins</span>
+                    </span>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Ingredients / Recipe Notes</h4>
+                    <p id="view-notes" class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">No notes provided for this recipe.</p>
+                </div>
+
+                <!-- Launch Instagram CTA -->
+                <a id="view-ig-link" href="#" target="_blank" rel="noopener noreferrer" class="w-full py-3 bg-gradient-to-r from-purple-600 via-rose-500 to-amber-500 hover:opacity-95 text-white font-bold rounded-2xl flex items-center justify-center space-x-2 shadow-lg shadow-rose-500/20 active:scale-95 transition-all">
+                    <i data-lucide="instagram" class="w-5 h-5"></i>
+                    <span>Open in Instagram App</span>
+                    <i data-lucide="external-link" class="w-4 h-4 ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        const DEFAULT_FOLDERS = ["Dinners", "Desserts", "Quick 15-min", "Saved Posts"];
+        
+        const SEED_RECIPES = [
+            {
+                id: '1',
+                title: 'Creamy Garlic Tuscan Salmon',
+                url: 'https://www.instagram.com/reel/C123456789/',
+                folder: 'Dinners',
+                cookTime: '25',
+                image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=600&q=80',
+                notes: 'Salmon fillets, heavy cream, garlic, sun-dried tomatoes, spinach, parmesan cheese.',
+                createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
+            },
+            {
+                id: '2',
+                title: 'Crispy Honey Chili Chicken Bowl',
+                url: 'https://www.instagram.com/reel/C987654321/',
+                folder: 'Dinners',
+                cookTime: '20',
+                image: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&q=80',
+                notes: 'Chicken thighs, honey, soy sauce, sriracha, sesame oil, steamed rice, cucumbers.',
+                createdAt: new Date(Date.now() - 86400000 * 5).toISOString()
+            },
+            {
+                id: '3',
+                title: 'Fudgy Dark Chocolate Brownies',
+                url: 'https://www.instagram.com/p/C456789123/',
+                folder: 'Desserts',
+                cookTime: '35',
+                image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=600&q=80',
+                notes: '70% dark chocolate, butter, cocoa powder, espresso powder, brown sugar.',
+                createdAt: new Date(Date.now() - 86400000 * 10).toISOString()
+            },
+            {
+                id: '4',
+                title: 'Avocado & Egg Breakfast Toast',
+                url: 'https://www.instagram.com/p/C654987321/',
+                folder: 'Quick 15-min',
+                cookTime: '10',
+                image: '', // Will use auto-generated visual thumbnail card
+                notes: 'Sourdough, ripe avocado, poached eggs, chili flakes, microgreens, extra virgin olive oil.',
+                createdAt: new Date().toISOString()
+            }
+        ];
+
+        let state = {
+            recipes: [],
+            folders: [],
+            activeFolder: 'All', // 'All' or specific folder name
+            searchQuery: '',
+            sortBy: 'newest'
+        };
+
+        // --- Init Function ---
+        window.onload = function() {
+            loadState();
+            setupTheme();
+            renderFolders();
+            renderRecipes();
+            lucide.createIcons();
+        };
+
+        function loadState() {
+            const savedRecipes = localStorage.getItem('instabite_recipes');
+            const savedFolders = localStorage.getItem('instabite_folders');
+
+            state.recipes = savedRecipes ? JSON.parse(savedRecipes) : SEED_RECIPES;
+            state.folders = savedFolders ? JSON.parse(savedFolders) : DEFAULT_FOLDERS;
+
+            if (!savedRecipes) saveRecipesToStorage();
+            if (!savedFolders) saveFoldersToStorage();
+        }
+
+        function saveRecipesToStorage() {
+            localStorage.setItem('instabite_recipes', JSON.stringify(state.recipes));
+        }
+
+        function saveFoldersToStorage() {
+            localStorage.setItem('instabite_folders', JSON.stringify(state.folders));
+        }
+
+        // --- Theme Toggle ---
+        function setupTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon-dark').classList.add('hidden');
+                document.getElementById('theme-icon-light').classList.remove('hidden');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.getElementById('theme-icon-dark').classList.remove('hidden');
+                document.getElementById('theme-icon-light').classList.add('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            document.getElementById('theme-icon-dark').classList.toggle('hidden', isDark);
+            document.getElementById('theme-icon-light').classList.toggle('hidden', !isDark);
+        }
+
+        // --- STREAMING_CHUNK:Rendering Folders & Navigation Elements... ---
+        function renderFolders() {
+            const folderNav = document.getElementById('folder-list');
+            const folderSelect = document.getElementById('recipe-folder');
+
+            // Nav List HTML
+            let navHtml = `
+                <button onclick="filterByFolder('All')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${state.activeFolder === 'All' ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                    <div class="flex items-center space-x-2.5">
+                        <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                        <span>All Recipes</span>
+                    </div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full ${state.activeFolder === 'All' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}">${state.recipes.length}</span>
+                </button>
+            `;
+
+            state.folders.forEach(folder => {
+                const count = state.recipes.filter(r => r.folder === folder).length;
+                const isActive = state.activeFolder === folder;
+                navHtml += `
+                    <button onclick="filterByFolder('${folder}')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${isActive ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                        <div class="flex items-center space-x-2.5">
+                            <i data-lucide="folder" class="w-4 h-4"></i>
+                            <span class="truncate">${folder}</span>
+                        </div>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}">${count}</span>
+                    </button>
+                `;
+            });
+
+            folderNav.innerHTML = navHtml;
+
+            // Form Select HTML
+            folderSelect.innerHTML = state.folders.map(f => `<option value="${f}">${f}</option>`).join('');
+
+            // Filter Banner Update
+            const filterBanner = document.getElementById('filter-banner');
+            if (state.activeFolder !== 'All') {
+                filterBanner.classList.remove('hidden');
+                filterBanner.classList.add('flex');
+                document.getElementById('filter-folder-name').innerText = state.activeFolder;
+            } else {
+                filterBanner.classList.add('hidden');
+                filterBanner.classList.remove('flex');
+            }
+
+            // Stats Update
+            document.getElementById('stat-total-recipes').innerText = state.recipes.length;
+            document.getElementById('stat-progress-bar').style.width = Math.min(state.recipes.length * 10, 100) + '%';
+
+            lucide.createIcons();
+        }
+
+        function filterByFolder(folderName) {
+            state.activeFolder = folderName;
+            renderFolders();
+            renderRecipes();
+        }
+
+        function resetFolderFilter() {
+            filterByFolder('All');
+        }
+
+        // --- STREAMING_CHUNK:Rendering Recipe Cards with Auto Thumbnails... ---
+        function renderRecipes() {
+            const grid = document.getElementById('recipe-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            // Filter
+            let filtered = state.recipes.filter(r => {
+                const matchesFolder = state.activeFolder === 'All' || r.folder === state.activeFolder;
+                const matchesSearch = state.searchQuery === '' || 
+                    r.title.toLowerCase().includes(state.searchQuery.toLowerCase()) || 
+                    (r.notes && r.notes.toLowerCase().includes(state.searchQuery.toLowerCase()));
+                return matchesFolder && matchesSearch;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                if (state.sortBy === 'newest') return new Date(b.createdAt) - new Date(a.createdAt);
+                if (state.sortBy === 'oldest') return new Date(a.createdAt) - new Date(b.createdAt);
+                if (state.sortBy === 'alphabetical') return a.title.localeCompare(b.title);
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
+            grid.innerHTML = filtered.map(recipe => createRecipeCardHTML(recipe)).join('');
+            lucide.createIcons();
+        }
+
+        function createRecipeCardHTML(recipe) {
+            const hasImage = recipe.image && recipe.image.trim() !== '';
+            
+            // Auto visual thumbnail styling if no image URL provided
+            const fallbackGradients = [
+                'from-rose-500 to-amber-500',
+                'from-purple-600 to-pink-500',
+                'from-emerald-500 to-teal-700',
+                'from-amber-500 to-orange-600',
+                'from-indigo-600 to-sky-500'
+            ];
+            const charCodeSum = recipe.title.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+            const selectedGradient = fallbackGradients[charCodeSum % fallbackGradients.length];
+
+            const imageContainer = hasImage ? `
+                <img src="${recipe.image}" alt="${recipe.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'w-full h-full bg-gradient-to-br ${selectedGradient} flex items-center justify-center text-white font-extrabold text-2xl px-4 text-center\'>${recipe.title.substring(0,2).toUpperCase()}</div>';">
+            ` : `
+                <div class="w-full h-full bg-gradient-to-br ${selectedGradient} flex flex-col items-center justify-center text-white p-4 text-center">
+                    <i data-lucide="utensils" class="w-8 h-8 mb-2 opacity-80"></i>
+                    <span class="font-bold text-sm line-clamp-2">${recipe.title}</span>
+                </div>
+            `;
+
+            return `
+                <div class="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 overflow-hidden flex flex-col">
+                    
+                    <!-- Card Thumbnail Image -->
+                    <div class="relative h-44 w-full bg-slate-100 dark:bg-slate-800 overflow-hidden cursor-pointer" onclick="openViewModal('${recipe.id}')">
+                        ${imageContainer}
+                        <div class="absolute top-3 left-3">
+                            <span class="px-2.5 py-1 bg-slate-900/70 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider rounded-lg">
+                                ${recipe.folder}
+                            </span>
+                        </div>
+                        ${recipe.cookTime ? `
+                            <div class="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md text-amber-400 text-[11px] font-semibold px-2 py-0.5 rounded-md flex items-center space-x-1">
+                                <i data-lucide="clock" class="w-3 h-3"></i>
+                                <span>${recipe.cookTime}m</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 onclick="openViewModal('${recipe.id}')" class="font-bold text-slate-900 dark:text-white text-base leading-snug line-clamp-2 hover:text-rose-500 dark:hover:text-rose-400 cursor-pointer transition-colors mb-1.5">
+                                ${recipe.title}
+                            </h3>
+                            ${recipe.notes ? `<p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-3">${recipe.notes}</p>` : '<div class="mb-3"></div>'}
+                        </div>
+
+                        <!-- Card Footer & Actions -->
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                            <a href="${recipe.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300">
+                                <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
+                                <span>Open IG</span>
+                                <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                            </a>
+
+                            <div class="flex items-center space-x-1">
+                                <button onclick="editRecipe('${recipe.id}')" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Edit Recipe">
+                                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button onclick="deleteRecipe('${recipe.id}')" class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors" title="Delete Recipe">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- STREAMING_CHUNK:Handling Modals & Interactive Actions... ---
+
+        // Search Handlers
+        function handleSearch() {
+            const query = document.getElementById('search-input').value;
+            state.searchQuery = query;
+            document.getElementById('clear-search-btn').classList.toggle('hidden', query === '');
+            renderRecipes();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            state.searchQuery = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            renderRecipes();
+        }
+
+        function handleSortChange() {
+            state.sortBy = document.getElementById('sort-select').value;
+            renderRecipes();
+        }
+
+        // Recipe Modal Controls
+        function openAddModal() {
+            document.getElementById('modal-title').innerText = "Save Recipe Link";
+            document.getElementById('recipe-form').reset();
+            document.getElementById('recipe-id').value = '';
+            document.getElementById('recipe-modal').classList.remove('hidden');
+            document.getElementById('recipe-url').focus();
+        }
+
+        function closeRecipeModal() {
+            document.getElementById('recipe-modal').classList.add('hidden');
+        }
+
+        function editRecipe(id) {
+            const recipe = state.recipes.find(r => r.id === id);
+            if (!recipe) return;
+
+            document.getElementById('modal-title').innerText = "Edit Recipe Details";
+            document.getElementById('recipe-id').value = recipe.id;
+            document.getElementById('recipe-url').value = recipe.url;
+            document.getElementById('recipe-title').value = recipe.title;
+            document.getElementById('recipe-folder').value = recipe.folder;
+            document.getElementById('recipe-time').value = recipe.cookTime || '';
+            document.getElementById('recipe-image').value = recipe.image || '';
+            document.getElementById('recipe-notes').value = recipe.notes || '';
+
+            document.getElementById('recipe-modal').classList.remove('hidden');
+        }
+
+        function saveRecipe(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('recipe-id').value;
+            const url = document.getElementById('recipe-url').value;
+            const title = document.getElementById('recipe-title').value;
+            const folder = document.getElementById('recipe-folder').value;
+            const cookTime = document.getElementById('recipe-time').value;
+            const image = document.getElementById('recipe-image').value;
+            const notes = document.getElementById('recipe-notes').value;
+
+            if (id) {
+                // Update
+                const index = state.recipes.findIndex(r => r.id === id);
+                if (index !== -1) {
+                    state.recipes[index] = {
+                        ...state.recipes[index],
+                        url, title, folder, cookTime, image, notes
+                    };
+                }
+            } else {
+                // Create
+                const newRecipe = {
+                    id: Date.now().toString(),
+                    url,
+                    title,
+                    folder,
+                    cookTime,
+                    image,
+                    notes,
+                    createdAt: new Date().toISOString()
+                };
+                state.recipes.unshift(newRecipe);
+            }
+
+            saveRecipesToStorage();
+            renderFolders();
+            renderRecipes();
+            closeRecipeModal();
+        }
+
+        function deleteRecipe(id) {
+            if (confirm("Are you sure you want to remove this recipe from your vault?")) {
+                state.recipes = state.recipes.filter(r => r.id !== id);
+                saveRecipesToStorage();
+                renderFolders();
+                renderRecipes();
+            }
+        }
+
+        // Folder Modal Controls
+        function openFolderModal() {
+            document.getElementById('new-folder-name').value = '';
+            document.getElementById('folder-modal').classList.remove('hidden');
+            document.getElementById('new-folder-name').focus();
+        }
+
+        function closeFolderModal() {
+            document.getElementById('folder-modal').classList.add('hidden');
+        }
+
+        function saveNewFolder() {
+            const folderName = document.getElementById('new-folder-name').value.trim();
+            if (folderName && !state.folders.includes(folderName)) {
+                state.folders.push(folderName);
+                saveFoldersToStorage();
+                renderFolders();
+                closeFolderModal();
+            }
+        }
+
+        // Recipe View Drawer Modal
+        function openViewModal(id) {
+            const recipe = state.recipes.find(r => r.id === id);
+            if (!recipe) return;
+
+            document.getElementById('view-recipe-title').innerText = recipe.title;
+            document.getElementById('view-folder-badge').innerText = recipe.folder;
+            document.getElementById('view-notes').innerText = recipe.notes || "No extra notes saved for this recipe.";
+            document.getElementById('view-ig-link').href = recipe.url;
+
+            const timeElem = document.getElementById('view-time');
+            if (recipe.cookTime) {
+                timeElem.innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5"></i> <span>${recipe.cookTime} mins</span>`;
+                timeElem.classList.remove('hidden');
+            } else {
+                timeElem.classList.add('hidden');
+            }
+
+            const headerBg = document.getElementById('view-header-bg');
+            if (recipe.image && recipe.image.trim() !== '') {
+                headerBg.style.backgroundImage = `url('${recipe.image}')`;
+            } else {
+                headerBg.style.backgroundImage = 'none';
+                headerBg.className = 'h-48 w-full relative bg-gradient-to-br from-rose-500 via-purple-600 to-amber-500 flex items-end p-4';
+            }
+
+            document.getElementById('view-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeViewModal() {
+            document.getElementById('view-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
